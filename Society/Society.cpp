@@ -4,6 +4,10 @@
 
 using namespace std;
 
+/*
+* printPopulation() subroutine. -Receives cycle_limit-.
+*	Outputs console text with updated society population data.
+*/
 void printPopulation (int population, int cycle, int cycle_limit, int population_female, int mutated_population, int female_mutated_population, int carrying_capacity) {
 	cout << "-----------------------------------------" << endl;
 	cout << "Cycle: " << cycle << "/" << cycle_limit << endl;
@@ -16,7 +20,10 @@ void printPopulation (int population, int cycle, int cycle_limit, int population
 	cout << "\t Male mutated population " << mutated_population - female_mutated_population << endl;
 }
 
-
+/*
+* printPopulation() subroutine. -Does not receive cycle_limit-.
+*	Outputs console text with updated society population data.
+*/
 void printPopulation(int population, int cycle, int population_female, int mutated_population, int female_mutated_population, int carrying_capacity) {
 	cout << "-----------------------------------------" << endl;
 	cout << "Cycle: " << cycle << endl;
@@ -29,6 +36,13 @@ void printPopulation(int population, int cycle, int population_female, int mutat
 	cout << "\t Male mutated population " << mutated_population - female_mutated_population << endl;
 }
 
+/*
+* overload() subroutine.
+*	Manages wether there is or not excess in population according to its carrying capacity.
+*	If there is, it returns a multiplier by which the death chance will be increased.
+*	If there is not, it will return neutral multiplier (1).
+*	If the carrying capacity was set to unlimited (0) it will not matter wether there is or not excess, multiplier will be neutral (1) both ways.
+*/
 double overload(int carrying_capacity, int population) {
 	if (population  > carrying_capacity) {
 		return population / (population-carrying_capacity);
