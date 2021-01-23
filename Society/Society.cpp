@@ -52,51 +52,104 @@ double overload(int carrying_capacity, int population) {
 	}
 }
 
-int main () {
+int main() {
 
+			//Introduction
 	cout << "This program will run a society simulation." << endl;
 	cout << "People may live, people may be born, and people may die." << endl;
 	cout << endl;
 	cout << "First we will define parameters for the population: " << endl;
 
-	int death_chance;
-	int birth_chance;
+	int death_chance;			//Chance of having one populator die
+	int birth_chance;			//Chance of replicating into a new populator
 	cout << "Enter death chance (positive integer between 0 and 100): " << endl;
 	cin >> death_chance;
 	cout << "Enter birth chance (positive integer between 0 and 100): " << endl;
 	cin >> birth_chance;
 
-	int population;
-	int cycle_limit;
+	int population;			//Initial population size
+	int cycle_limit;		//Cycles the population will run for (optional)
 	cout << "At first, half of the population will be male, the other half female." << endl;
 	cout << "Enter the starting population size: ";
 	cin >> population;
-	int population_female = population / 2;
+	int population_female = population / 2;			//Female population
 
-	int carrying_capacity;
+	int carrying_capacity;			//Carrying capacity of the total population (optional)
 	cout << "Enter the carrying capacity the society will have (positive integer higher than 0 or 0 for unlimited): " << endl;
 	cin >> carrying_capacity;
 
-	int mutation_chance;
+	int mutation_chance;			//Chance of having a replicated populator mute
 	cout << "Enter the initial mutation chance (positive integer between 0 and 100): " << endl;
 	cin >> mutation_chance;
+
 	cout << "Finally, enter the cycles this society will run for (0 to run forever): ";
 	cin >> cycle_limit;
 
-	int mutated_population = 0;
-	int female_mutated_population = 0;
+	int mutated_population = 0;					//Mutated populators count
+	int female_mutated_population = 0;				//Female mutated populators
 
-	printPopulation(population, 0, cycle_limit, population_female,mutated_population,female_mutated_population,carrying_capacity);
+	printPopulation(population, 0, cycle_limit, population_female, mutated_population, female_mutated_population, carrying_capacity);
 
 	srand(time(NULL));
-	if (cycle_limit > 0) {
-		for (int cycle = 1; cycle <= cycle_limit; cycle++) {
-		
-			for (int i = 0; i < population + mutated_population;i++) {			//DEATH
-				if (rand() % 100 + 1 < mutated_population / (population + mutated_population) or population <=0) {
+	if (cycle_limit > 0) {				//Option A: Cycle limit not null
+		for (int cycle = 1; cycle <= cycle_limit; cycle++) {			//For whatever amount of cycles chosen
+
+			for (int i = 0; i < population + mutated_population; i++) {			//DEATH CHANCES
+				if (rand() % 100 + 1 < mutated_population / (population + mutated_population) or population <= 0) {				//Mutated chance
+					if (rand() % 100 + 1 < death_chance * 0.80 * overload(carrying_capacity, population + mutated_population)) {			//Mutated death chance
+
+						if (rand() % 100 + 1 < female_mutated_population / mutated_population or mutated_population - female_mutated_population <= 0) {				//Female mutated death chance
+							female_mutated_population--;		//Effect
+						}
+						mutated_population--;			//Effect
+					}
+				}
+				else {			//Non-mutated chance
+					if (rand() % 100 + 1 < death_chance * overload(carrying_capacity, population + mutated_population)) {				//Non-mutated death chance
+						if (population - population_female < 0 or rand() % 100 + 1 < population_female / population) {				//Female non-mutated death chance
+							population_female--;			//Effect
+						}
+						population--;				//Effect
+					}
+
+				}
+			}
+
+			for (int i = 0; i < population_female + female_mutated_population; i++) {			//For whatever amount of cycles chosen
+				if (rand() % 100 + 1 < birth_chance) {					//BIRTH CHANCES
+					if (female_mutated_population > 1 and mutated_population - female_mutated_population > 1 and rand() % 100 + 1 < female_mutated_population / (female_mutated_population + population_female)) {			//Mutated chance
+						female_mutated_population++;			//Effect
+					}
+					else {				
+						if (rand() % 100 + 1 < mutation_chance) {				//Mutation chance
+							if (rand() % 100 + 1 < 50) {				//Female mutation chance
+								female_mutated_population++;						//Effect
+							}
+							mutated_population++;				//Effect
+						}
+						else {				//Non-mutation chance
+							if (rand() % 100 + 1 < 50) {			//Female non-mutated chance
+								population_female++;				//Effect
+							}
+							population++;			//Effect
+						}
+					}
+				}
+			}
+							//Data update
+			printPopulation(population, cycle, cycle_limit, population_female, mutated_population, female_mutated_population, carrying_capacity);
+		}
+	}
+
+	else {				//Option B: Cycle limit null			(Same functions and commands)
+		int cycle = 0;
+		while ((population_female > 0 or female_mutated_population > 0) and (mutated_population - female_mutated_population > 0 or population - population_female > 0)) {
+
+			for (int i = 0; i < population + mutated_population; i++) {				//DEATH
+				if (rand() % 100 + 1 < mutated_population / (population + mutated_population) or population <= 0) {
 					if (rand() % 100 + 1 < death_chance * 0.80 * overload(carrying_capacity, population + mutated_population)) {
 
-						if (rand() % 100 + 1 < female_mutated_population / mutated_population or mutated_population-female_mutated_population<=0) {
+						if (rand() % 100 + 1 < female_mutated_population / mutated_population or mutated_population - female_mutated_population <= 0) {
 							female_mutated_population--;
 						}
 						mutated_population--;
@@ -109,76 +162,34 @@ int main () {
 						}
 						population--;
 					}
-					
+
 				}
+
 			}
-				
-			for (int i = 0; i < population_female+female_mutated_population; i++) {			//BIRTH
+
+			for (int i = 0; i < population_female + female_mutated_population; i++) {				//BIRTH
 				if (rand() % 100 + 1 < birth_chance) {
-					if (rand() % 100 + 1 < mutation_chance) {
-						if (rand() % 100 + 1 < 50) {
-							female_mutated_population++;
-						}
-						mutated_population++;
+					if (female_mutated_population > 1 and mutated_population - female_mutated_population > 1 and rand() % 100 + 1 < female_mutated_population / (female_mutated_population + population_female)) {
+						female_mutated_population++;
 					}
 					else {
-						if (rand() % 100 + 1 < 50) {
-							population_female++;
+						if (rand() % 100 + 1 < mutation_chance) {
+							if (rand() % 100 + 1 < 50) {
+								female_mutated_population++;
+							}
+							mutated_population++;
 						}
-						population++;
+						else {
+							if (rand() % 100 + 1 < 50) {
+								population_female++;
+							}
+							population++;
+						}
 					}
 				}
+				cycle++;
+				printPopulation(population, cycle, population_female, mutated_population, female_mutated_population, carrying_capacity);
 			}
-
-			printPopulation(population, cycle, cycle_limit, population_female,mutated_population,female_mutated_population,carrying_capacity);
-		}
-	}
-
-	else {
-		int cycle = 0;
-		while ((population_female>0 or female_mutated_population>0) and (mutated_population-female_mutated_population>0 or population-population_female>0)) {
-			cycle++;
-		
-			for (int i = 0; i < population+mutated_population; i++) {				//DEATH
-					if (rand() % 100 + 1 < mutated_population / (population + mutated_population) or population <= 0) {
-						if (rand() % 100 + 1 < death_chance * 0.80 * overload(carrying_capacity, population + mutated_population)) {
-
-							if (rand() % 100 + 1 < female_mutated_population / mutated_population or mutated_population-female_mutated_population<=0) {
-								female_mutated_population--;
-							}
-							mutated_population--;
-						}
-					}
-					else {
-						if (rand() % 100 + 1 < death_chance * overload(carrying_capacity, population + mutated_population)) {
-							if (population-population_female<0 or rand() % 100 + 1 < population_female / population) {
-								population_female--;
-							}
-							population--;
-						}
-
-					}
-				
-			}
-
-			for (int i = 0; i < population_female+female_mutated_population; i++) {				//BIRTH
-				if (rand() % 100 + 1 < birth_chance) {
-					if (rand() % 100 + 1 < mutation_chance) {
-						if (rand() % 100 + 1 < 50) {
-							female_mutated_population++;
-						}
-						mutated_population++;
-					}
-					else {
-						if (rand() % 100 + 1 < 50) {
-							population_female++;
-						}
-						population++;
-					}
-				}
-			}
-
-			printPopulation(population, cycle, population_female,mutated_population,female_mutated_population,carrying_capacity);
 		}
 	}
 	return 0;
